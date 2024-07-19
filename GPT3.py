@@ -22,7 +22,7 @@ def load_data(path):
 
 
 def gpt3_summarize(text, question, max_tokens, temperature=0.7):
-    client = OpenAI(api_key="sk-None-M9rNtmvweYq8uvVz27YhT3BlbkFJtFGoa1e5UrhNS8nrjAcB")
+    client = OpenAI(api_key="my-openai-apikey")
     response = client.completions.create(
         model="gpt-3.5-turbo",
         prompt=[{"role": "user",
