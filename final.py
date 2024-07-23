@@ -5,7 +5,8 @@ import ollama
 from transformers import BertTokenizer, BertForMaskedLM, BertModel
 from bert_score import BERTScorer
 
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
 def load_data_files(_DATA_FILE_QUESTIONS_, _DATA_FILE_RESPONSES_):
     # Load questions
     df_questions = pd.read_csv(_DATA_FILE_QUESTIONS_)
@@ -14,18 +15,18 @@ def load_data_files(_DATA_FILE_QUESTIONS_, _DATA_FILE_RESPONSES_):
 
     return df_questions, df_responses
 
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
 def print_eval_questions_stats(df_questions):
     # Inspect questions dataframe
     print("\nQuestions dataframe:")
     print(df_questions.info())
-    print("-"*50)
+    print("-" * 50)
     # number of rows
     print("Number of questions: ", len(df_questions))
-    print("-"*50)
+    print("-" * 50)
     print(df_questions.head())
-    print("-"*50)
-
+    print("-" * 50)
 
     # questions stats
     print("\nQuestions stats:")
@@ -38,7 +39,8 @@ def print_eval_questions_stats(df_questions):
     # avg # of questions for a form
     print("Avg # of questions for a form: ", df_questions.groupby('FormNumber').size().mean())
 
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
 def print_eval_responses_stats(df_responses):
     # list distinct acad groups
     print("\nDistinct academic groups:")
@@ -48,8 +50,7 @@ def print_eval_responses_stats(df_responses):
     print("\nDistinct subjects:")
     print(df_responses['Subject'].unique())
 
-
-    # now we need to do a count 
+    # now we need to do a count
     # also for each acad unit, how many number of subjects
     # and for each subject, how many number of catalogs
     # and then for each catalog, how many number of sections
@@ -74,10 +75,11 @@ def print_eval_responses_stats(df_responses):
     print(f"Distinct subject+catalog+sections: {len(cnt_sections)}")
 
     # distinct form numbers
-    cnt_forms = len(df_responses['EvaluationForm'].unique())    
+    cnt_forms = len(df_responses['EvaluationForm'].unique())
     print(f"Distinct forms: {cnt_forms}")
 
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
 def print_df_eval_response_forms(df_questions, df_responses):
     # print all the distinct forms in the df_responses
     print("\nDistinct forms:")
@@ -92,21 +94,25 @@ def print_df_eval_response_forms(df_questions, df_responses):
             print('Form found')
         else:
             print("No form found")
-#------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------
 def get_summary(model, comments):
     # interact with ollama api
 
     prompt = "Summarize the comments"
     prompt_comments = prompt + comments
     response = ollama.chat(model=model, messages=[
-                            {
-                                'role': 'user',
-                                'content': prompt_comments,
-                            },
-                            ])
-    
+        {
+            'role': 'user',
+            'content': prompt_comments,
+        },
+    ])
+
     return response['message']['content']
-#------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------
 # now we need to iterate through each section
 # get the form number for each section
 # look up the questions for each section df_questions
@@ -117,10 +123,10 @@ def get_summary(model, comments):
 # and then summarize the comments for each question for each section
 # then we write it to a file
 def process_section(instructor, subject, catalog, section_nunber, df_section_responses, df_questions, _DATA_OUT_):
-    print("="*88)
+    print("=" * 88)
     print(f"Section: {section_nunber}")
     # print(df_section_responses.head())
-    print("-"*50)
+    print("-" * 50)
     print(f"Number of responses: {len(df_section_responses)}")
     # does it have a form number?
     form_numbers = df_section_responses['EvaluationForm'].unique()
@@ -175,10 +181,10 @@ def process_section(instructor, subject, catalog, section_nunber, df_section_res
                 responses = responses.tolist()
                 # sentiments = sentiment_analysis(responses)
                 # print(sentiments)
-                
+
             # summarize the comments
             SUMMARIZER_LOWER_LIMIT = 200
-            
+
             # remove newline from within each individual response/comment
             responses = [response.replace('\n', ' ') for response in responses]
 
@@ -187,14 +193,14 @@ def process_section(instructor, subject, catalog, section_nunber, df_section_res
 
             len_comments = len(comments)
             print(f"Length of comments: {len_comments}")
-            
-            model = ["llama3",""]
+
+            model = ["llama3", ""]
             summary_text = ""
             if len_comments < SUMMARIZER_LOWER_LIMIT:
                 print("Not enough comments to summarize")
                 summary = comments
             else:
-                print("="*88)
+                print("=" * 88)
                 print(f"len_comments: {len_comments}")
                 # print(comments)
                 # model = "allenai/led-base-16384"
@@ -224,15 +230,15 @@ def process_section(instructor, subject, catalog, section_nunber, df_section_res
                 # file.write(f"Sentiments: {sentiments}\n")
                 file.write(f"Summary:\n {summary_text}\n\n")
             # close the file
-            
-#------------------------------------------------------------------------
-def process_evals(df_questions, df_responses, _DATA_OUT_):
 
+
+# ------------------------------------------------------------------------
+def process_evals(df_questions, df_responses, _DATA_OUT_):
     # replace instructor name with 'default instructor' if it is Nan
     df_responses['InstructorName'] = df_responses['InstructorName'].fillna('Instructor, Dummy')
 
     # we get the list of distinct sections (classNbr)
-    # then for each ClassNbr we filter out its responses 
+    # then for each ClassNbr we filter out its responses
     distinct_sections = df_responses['ClassNbr'].unique()
     print(f"Distinct sections: {len(distinct_sections)}")
 
@@ -252,15 +258,17 @@ def process_evals(df_questions, df_responses, _DATA_OUT_):
                 instructor = instructor.replace(',', '_')
 
             print(f"Now processing section: {section_number}")
-            process_section(instructor, subject, catalog, section_number, df_section_responses, df_questions, _DATA_OUT_)
+            process_section(instructor, subject, catalog, section_number, df_section_responses, df_questions,
+                            _DATA_OUT_)
             # processed = True
             print(f"Finished processing section: {section_number}")
-            print("="*88)
+            print("=" * 88)
 
     print("Finished processing all sections")
-    print("="*88)
+    print("=" * 88)
 
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
 def main():
     # Config variables
     _DATA_BASE_DIR_ = r"C:\Users\mmavurap\Desktop\Gitlab Codes\CommentSummarization\src"
@@ -269,7 +277,6 @@ def main():
     _DATA_FILE_QUESTIONS_ = f"{_DATA_IN_}/questions.csv"
     _DATA_FILE_RESPONSES_ = f"{_DATA_IN_}/data.csv"
 
- 
     df_questions, df_responses = load_data_files(_DATA_FILE_QUESTIONS_, _DATA_FILE_RESPONSES_)
     # print_eval_questions_stats(df_questions)
     # print_eval_responses_stats(df_responses)
@@ -277,12 +284,12 @@ def main():
 
     process_evals(df_questions, df_responses, _DATA_OUT_)
 
-#------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------
 if __name__ == "__main__":
     main()
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-    
-    
-   
+# ------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
+

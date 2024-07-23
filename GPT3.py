@@ -1,13 +1,11 @@
-import os
-
-from openai import OpenAI
-import pandas as pd
 import warnings
-import bert_score
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, GPTNeoForCausalLM, GPT2Tokenizer
-import torch
-import ollama
 
+import bert_score
+import ollama
+import pandas as pd
+import torch
+from openai import OpenAI
+from transformers import GPT2LMHeadModel, GPTNeoForCausalLM, GPT2Tokenizer
 
 warnings.filterwarnings("ignore")
 
@@ -29,7 +27,6 @@ def gpt3_summarize(text, question, max_tokens, temperature=0.7):
                  "content": f"Summarize the following comments for the following question asked{question}:\n\n{text}\n\nSummary:"}],
         max_tokens=max_tokens,
         temperature=temperature,
-
     )
     summary = response.choices[0].text.strip()
     return summary
@@ -106,23 +103,23 @@ if __name__ == "__main__":
         text = " ".join(df_responses_sub["Comment" + str(commentColumn)].dropna().astype(str))
         question = df["Question"]
         commentColumn += 1
-        # # gpt3
-        # summary = gpt3_summarize(text, question, len(text.split()))
-        # print(summary)
-        # P, R, F1 = bert_score.score(summary, text, lang="en", verbose=True)
-        # print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
+        # gpt3
+        summary = gpt3_summarize(text, question, len(text.split()))
+        print(summary)
+        P, R, F1 = bert_score.score(summary, text, lang="en", verbose=True)
+        print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
 
-        # # gpt2
-        # summary = gpt2_summarize(text, question, max_tokens=len(text.split()))
-        # print(summary)
-        # P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
-        # print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
+        # gpt2
+        summary = gpt2_summarize(text, question, max_tokens=len(text.split()))
+        print(summary)
+        P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
+        print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
 
-        # #ollama
-        # summary = ollama_summarize(text, question, "llama3")
-        # print(summary)
-        # P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
-        # print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
+        #ollama
+        summary = ollama_summarize(text, question, "llama3")
+        print(summary)
+        P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
+        print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
 
         # gpt neo
         model_name = "EleutherAI/gpt-neo-1.3B"
