@@ -1,4 +1,4 @@
-This si a comment sumarization for the UH course evaluations.
+This is a comment sumarization for the UH course evaluations.
 
 It takes the resposes from an excel file as it is in testing phase and try to get the best summary out using the bert scores.
 
