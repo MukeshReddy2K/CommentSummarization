@@ -1,12 +1,11 @@
 import warnings
-
 import bert_score
 import ollama
 import pandas as pd
 import torch
 from openai import OpenAI
 from transformers import GPT2LMHeadModel, GPTNeoForCausalLM, GPT2Tokenizer
-
+from datetime import datetime
 warnings.filterwarnings("ignore")
 
 
@@ -55,7 +54,7 @@ def gpt2_summarize(text, question, model_name='gpt2', max_tokens=200, num_beams=
 
 
 def ollama_summarize(text,question,model):
-    prompt = "Summarize the comments"
+    prompt = "Summarize the comments asked for the following question " + question + ":"
     prompt_comments = prompt + text
     response = ollama.chat(model=model, messages=[
         {
@@ -103,31 +102,32 @@ if __name__ == "__main__":
         text = " ".join(df_responses_sub["Comment" + str(commentColumn)].dropna().astype(str))
         question = df["Question"]
         commentColumn += 1
-        # gpt3
-        summary = gpt3_summarize(text, question, len(text.split()))
-        print(summary)
-        P, R, F1 = bert_score.score(summary, text, lang="en", verbose=True)
-        print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
-
-        # gpt2
-        summary = gpt2_summarize(text, question, max_tokens=len(text.split()))
-        print(summary)
-        P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
-        print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
+        # # gpt3
+        # summary = gpt3_summarize(text, question, len(text.split()))
+        # print(summary)
+        # P, R, F1 = bert_score.score(summary, text, lang="en", verbose=True)
+        # print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
+        #
+        # # gpt2
+        # summary = gpt2_summarize(text, question, max_tokens=len(text.split()))
+        # print(summary)
+        # P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
+        # print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
 
         #ollama
+        print(datetime.now())
         summary = ollama_summarize(text, question, "llama3")
         print(summary)
-        P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
-        print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
-
-        # gpt neo
-        model_name = "EleutherAI/gpt-neo-1.3B"
-        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-        model = GPTNeoForCausalLM.from_pretrained(model_name)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
-        summary = gptneo_summarize(text, question, model, tokenizer)
-        print(summary)
-        P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
-        print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
+        # P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
+        # print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
+        print(datetime.now())
+        # # gpt neo
+        # model_name = "EleutherAI/gpt-neo-1.3B"
+        # tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        # model = GPTNeoForCausalLM.from_pretrained(model_name)
+        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # model.to(device)
+        # summary = gptneo_summarize(text, question, model, tokenizer)
+        # print(summary)
+        # P, R, F1 = bert_score.score([summary], [text], lang="en", verbose=True)
+        # print(f"Precision: {P.mean().item()}, Recall: {R.mean().item()}, F1: {F1.mean().item()}")
