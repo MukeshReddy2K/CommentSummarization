@@ -12,4 +12,4 @@ The architecture is similar to GPT2 except that GPT Neo uses local attention in 
 ## 5) llama3 using ollama
 LLaMA 3 (Large Language Model Meta AI) is a state-of-the-art language model designed for natural language processing tasks. It is fine-tuned with 8 billion parameters. Trained on diverse datasets to follow complex instructions.
 
-Found best results for the LLaMA3 for generating text summarizations for the UH Faculty couse evaluation system.  
+Found best results for the LLaMA3 for generating text summarizations for the UH Faculty couse evaluation system. In future I will try with Qwen3-30B-A3B-Instruct (long context), GLM-4.5V (multimodal), and IBM Granite (3.1/3.2).
